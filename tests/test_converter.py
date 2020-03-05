@@ -65,12 +65,12 @@ class TestConverter(TestCase):
 	def test_group_into_pairs(self):
 		list_of_lists = ['a', 'b', 'a', 'b', 'c', 'd', 'e', 'f', 'c', 'd', 'a', 'e']
 		goal_dictionary = {
-			'a': ['b', 'b', 'e'],
-			'b': ['a', 'c'],
-			'c': ['d', 'd'],
-			'd': ['e', 'a'],
-			'e': ['f'],
-			'f': ['c']
+			('a',): [('b',), ('b',), ('e',)],
+			('b',): [('a',), ('c',)],
+			('c',): [('d',), ('d',)],
+			('d',): [('e',), ('a',)],
+			('e',): [('f',)],
+			('f',): [('c',)]
 		}
 		actual_dictionary = self.converter.group_into_pairs(list_of_lists)
 

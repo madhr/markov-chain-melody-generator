@@ -47,5 +47,5 @@ class Converter:
 		d = dict()
 		for i, element in enumerate(input_list):
 			if i + 1 != len(input_list):
-				d.setdefault(element, []).append(input_list[i + 1])
+				d.setdefault(tuple(element), []).append(tuple(input_list[i + 1]))
 		return d

@@ -15,12 +15,15 @@ if __name__ == '__main__':
 	print("lowest_note", lowest_note)
 
 	chords = converter.extract_chords(new_track)
-	print(chords)
+	print("chords", chords)
 
 	substract_by = (lowest_note * (-1))
 	chords_normalized = converter.add_to_all_elements_in_list_of_lists(chords, substract_by)
-	print(list(chords_normalized))
+	print("chords normalized", list(chords_normalized))
 
 	converter.sort_elements_in_list_of_lists(chords_normalized)
 
-
+	dict = converter.group_into_pairs(chords_normalized)
+	for key, value in dict.items():
+		print("key", key)
+		print("value", value)
