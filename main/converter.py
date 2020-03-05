@@ -1,5 +1,9 @@
 from mido import MidiTrack
 
+from main.chord import Chord
+from main.possibility import Possibility
+
+
 class Converter:
 
 	def filter_note_on_and_not_drums(self, track):
@@ -34,6 +38,14 @@ class Converter:
 
 		return outer_list
 
+	def list_of_lists_to_list_of_chords(self, list_of_lists):
+		list_of_chords = []
+		for element in list_of_lists:
+			chord = Chord(tuple(element))
+			list_of_chords.append(chord)
+
+		return list_of_chords
+
 	def add_to_all_elements_in_list_of_lists(self, list_of_lists: list, add: int) -> list:
 		for i in range(len(list_of_lists)):
 			list_of_lists[i] = [x + add for x in list_of_lists[i]]
@@ -49,3 +61,20 @@ class Converter:
 			if i + 1 != len(input_list):
 				d.setdefault(tuple(element), []).append(tuple(input_list[i + 1]))
 		return d
+
+	def dict_to_list_of_chords(self, dictionary: dict):
+		result = []
+		for key, values in dictionary.items():
+			chord = Chord(key)
+			for val in values:
+				possibility = Possibility(Chord(val), values.count(val))
+				chord.possibilities.add(possibility)
+
+			for possibility in chord.possibilities:
+				all_oocurs_sum = sum([x.no_of_occurs for x in chord.possibilities])
+				possibility.normalized_prob = possibility.no_of_occurs * (1/all_oocurs_sum)
+
+			result.append(chord)
+
+		return result
+
