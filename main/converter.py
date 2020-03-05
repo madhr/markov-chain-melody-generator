@@ -42,3 +42,10 @@ class Converter:
 
 	def sort_elements_in_list_of_lists(self, list_of_lists: list) -> list:
 		return [sorted(inner) for inner in list_of_lists]
+
+	def group_into_pairs(self, input_list):
+		d = dict()
+		for i, element in enumerate(input_list):
+			if i + 1 != len(input_list):
+				d.setdefault(element, []).append(input_list[i + 1])
+		return d
