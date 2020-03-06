@@ -1,26 +1,16 @@
-from mido import MidiTrack
+import random
 
-from main.chord import Chord
-from main.possibility import Possibility
+from mido import MidiTrack, Message
 
 
 class Converter:
 
-	def filter_note_on_and_not_drums(self, track):
-		filtered = []
-		for i, msg in enumerate(track):
-			if msg.type == "note_on" and msg.channel != 9:
-				filtered.append(msg)
-		return filtered
+	DRUMS_CHANNEL = 0
 
-	def get_lowest_note(self, track_msgs) -> int:
-		lowest = 110
-		for msg in track_msgs:
-			if msg.note < lowest:
-				lowest = msg.note
-		return lowest
+	def parse_track_to_chords(self, track: MidiTrack) -> list:
 
-	def extract_chords(self, track_msgs):
+		track_msgs = self.__filter_out_redundant_track_messages(track)
+
 		outer_list = []
 		list = []
 		for i, msg in enumerate(track_msgs):
@@ -38,43 +28,53 @@ class Converter:
 
 		return outer_list
 
-	def list_of_lists_to_list_of_chords(self, list_of_lists):
-		list_of_chords = []
-		for element in list_of_lists:
-			chord = Chord(tuple(element))
-			list_of_chords.append(chord)
+	def __filter_out_redundant_track_messages(self, track):
+		filtered = []
+		for i, msg in enumerate(track):
+			if msg.type == "note_on" and msg.channel != self.DRUMS_CHANNEL:
+				filtered.append(msg)
+		return filtered
 
-		return list_of_chords
+	def parse_chords_to_track(self, chords_list: list, channel, program, velocity, time) -> MidiTrack:
+		track = MidiTrack()
+		track.append(Message('program_change', channel=channel, program=program, time=0))
 
-	def add_to_all_elements_in_list_of_lists(self, list_of_lists: list, add: int) -> list:
-		for i in range(len(list_of_lists)):
-			list_of_lists[i] = [x + add for x in list_of_lists[i]]
-		return list_of_lists
-
+		for chord in chords_list:
+			for i, note in enumerate(chord):
+				note_time = time if i == 0 else 0
+				track.append(Message('note_on', note=note, channel=channel, velocity=velocity, time=note_time))
+		return track
 
 	def sort_elements_in_list_of_lists(self, list_of_lists: list) -> list:
 		return [sorted(inner) for inner in list_of_lists]
 
-	def group_into_pairs(self, input_list):
+	def group_list_elements_into_pairs(self, input_list):
 		d = dict()
 		for i, element in enumerate(input_list):
 			if i + 1 != len(input_list):
 				d.setdefault(tuple(element), []).append(tuple(input_list[i + 1]))
 		return d
 
-	def dict_to_list_of_chords(self, dictionary: dict):
-		result = []
-		for key, values in dictionary.items():
-			chord = Chord(key)
-			for val in values:
-				possibility = Possibility(Chord(val), values.count(val))
-				chord.possibilities.add(possibility)
+	def generate_sequence(self, input_dict, current, sequence, count, max):
+		if max == count:
+			return sequence
+		candidates = input_dict[current]
 
-			for possibility in chord.possibilities:
-				all_oocurs_sum = sum([x.no_of_occurs for x in chord.possibilities])
-				possibility.normalized_prob = possibility.no_of_occurs * (1/all_oocurs_sum)
+		occurs_dict = dict()
+		probabilities_list = []
+		for cand in candidates:
+			occurs_dict[cand] = candidates.count(cand)
 
-			result.append(chord)
+		all_ocurs_sum = sum(occurs_dict.values())
 
-		return result
+		for key in occurs_dict:
+			normalized_prob = occurs_dict[key] * (1 / all_ocurs_sum)
+			probabilities_list.append(normalized_prob)
+
+		opts_list = list(occurs_dict.keys())
+
+		chosen = random.choices(opts_list, probabilities_list)[0]
+		sequence.append(chosen)
+		count = count+1
+		return self.generate_sequence(input_dict, chosen, sequence, count, max)
 
