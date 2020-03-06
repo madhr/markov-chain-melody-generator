@@ -78,3 +78,17 @@ class Converter:
 		count = count+1
 		return self.generate_sequence(input_dict, chosen, sequence, count, max)
 
+	def generate_track(self, input_track: MidiTrack) -> MidiTrack:
+		chords = self.parse_track_to_chords(input_track)
+
+		self.sort_elements_in_list_of_lists(chords)
+
+		my_dict = self.group_list_elements_into_pairs(chords)
+
+		seed = list(my_dict.keys())[0]
+
+		sequence = self.generate_sequence(my_dict, seed, [], 0, 100)
+
+		generated_track = self.parse_chords_to_track(sequence, 0, 12, 60, 300)
+
+		return generated_track
