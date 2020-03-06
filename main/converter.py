@@ -1,6 +1,7 @@
 import random
-
-from mido import MidiTrack, Message
+import time
+from pathlib import Path
+from mido import MidiTrack, Message, MidiFile
 
 
 class Converter:
@@ -43,6 +44,9 @@ class Converter:
 			for i, note in enumerate(chord):
 				note_time = time if i == 0 else 0
 				track.append(Message('note_on', note=note, channel=channel, velocity=velocity, time=note_time))
+			for i, note in enumerate(chord):
+				note_time = time if i == 0 else 0
+				track.append(Message('note_off', note=note, channel=channel, velocity=velocity, time=note_time))
 		return track
 
 	def sort_elements_in_list_of_lists(self, list_of_lists: list) -> list:
@@ -78,8 +82,11 @@ class Converter:
 		count = count+1
 		return self.generate_sequence(input_dict, chosen, sequence, count, max)
 
-	def generate_track(self, input_track: MidiTrack) -> MidiTrack:
+	def generate_track(self, input_track: MidiTrack, sequence_steps=100, channel=0, program=12, velocity=60, time=300) -> MidiTrack:
 		chords = self.parse_track_to_chords(input_track)
+
+		if not chords:
+			return None
 
 		self.sort_elements_in_list_of_lists(chords)
 
@@ -87,8 +94,26 @@ class Converter:
 
 		seed = list(my_dict.keys())[0]
 
-		sequence = self.generate_sequence(my_dict, seed, [], 0, 100)
+		sequence = self.generate_sequence(my_dict, seed, [], 0, sequence_steps)
 
-		generated_track = self.parse_chords_to_track(sequence, 0, 12, 60, 300)
+		generated_track = self.parse_chords_to_track(sequence, channel, program, velocity, time)
 
 		return generated_track
+
+	def generate_separate_tracks_from_midi_file(self, midi_file: MidiFile):
+		generated_tracks = []
+
+		for track in midi_file.tracks:
+			generated_track = self.generate_track(track)
+			if generated_track:
+				generated_tracks.append(generated_track)
+
+		for generated_track in generated_tracks:
+			outfile = MidiFile(ticks_per_beat=600)
+			outfile.tracks.append(generated_track)
+			file_dir = "results"
+			Path(file_dir).mkdir(exist_ok=True)
+			file_path = file_dir + '/' + str(round(time.time() * 1000)) + '.mid'
+			outfile.save(file_path)
+			print("saved as ", file_path)
+
