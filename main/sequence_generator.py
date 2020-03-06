@@ -4,7 +4,7 @@ from pathlib import Path
 from mido import MidiTrack, Message, MidiFile
 
 
-class Converter:
+class SequenceGenerator:
 
 	DRUMS_CHANNEL = 0
 
@@ -84,21 +84,13 @@ class Converter:
 
 	def generate_track(self, input_track: MidiTrack, sequence_steps=100, channel=0, program=12, velocity=60, time=300) -> MidiTrack:
 		chords = self.parse_track_to_chords(input_track)
-
-		if not chords:
-			return None
+		if not chords: return None
 
 		self.sort_elements_in_list_of_lists(chords)
-
 		my_dict = self.group_list_elements_into_pairs(chords)
-
 		seed = list(my_dict.keys())[0]
-
 		sequence = self.generate_sequence(my_dict, seed, [], 0, sequence_steps)
-
-		generated_track = self.parse_chords_to_track(sequence, channel, program, velocity, time)
-
-		return generated_track
+		return self.parse_chords_to_track(sequence, channel, program, velocity, time)
 
 	def generate_separate_tracks_from_midi_file(self, midi_file: MidiFile):
 		generated_tracks = []
@@ -115,5 +107,5 @@ class Converter:
 			Path(file_dir).mkdir(exist_ok=True)
 			file_path = file_dir + '/' + str(round(time.time() * 1000)) + '.mid'
 			outfile.save(file_path)
-			print("saved as ", file_path)
+			print("new single track file saved at:", file_path)
 

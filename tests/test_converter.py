@@ -1,11 +1,11 @@
 from unittest import TestCase
 from mido import Message, MidiTrack
 
-from main.converter import Converter
+from main.sequence_generator import SequenceGenerator
 
 
 class TestConverter(TestCase):
-	converter = Converter()
+	sequence_generator = SequenceGenerator()
 
 	def test_parse_track_to_chords(self):
 		msg1 = Message(type="note_on", channel=1, note=60, time=100)
@@ -19,14 +19,14 @@ class TestConverter(TestCase):
 			track.append(msg)
 
 		goal_chords = [[60, 61, 62], [63, 64]]
-		actual_chords = self.converter.parse_track_to_chords(track)
+		actual_chords = self.sequence_generator.parse_track_to_chords(track)
 
 		self.assertEqual(goal_chords, actual_chords)
 
 	def test_sort_elements_in_list_of_lists(self):
 		list_of_lists = [[8, 4, 6, 1], [3, 9, 1, 7], [3, 6, 4], [1], []]
 		goal_list = [[1, 4, 6, 8], [1, 3, 7, 9], [3, 4, 6], [1], []]
-		actual_list = self.converter.sort_elements_in_list_of_lists(list_of_lists)
+		actual_list = self.sequence_generator.sort_elements_in_list_of_lists(list_of_lists)
 
 		self.assertEqual(goal_list, actual_list)
 
@@ -40,7 +40,7 @@ class TestConverter(TestCase):
 			('e',): [('f',)],
 			('f',): [('c',)]
 		}
-		actual_dictionary = self.converter.group_list_elements_into_pairs(list_of_lists)
+		actual_dictionary = self.sequence_generator.group_list_elements_into_pairs(list_of_lists)
 
 		self.assertEqual(goal_dictionary, actual_dictionary)
 
@@ -51,7 +51,7 @@ class TestConverter(TestCase):
 			(5, 7): [(7, 8)],
 			(7, 8): [(1, 5)]
 		}
-		actual_dictionary = self.converter.group_list_elements_into_pairs(list_of_lists)
+		actual_dictionary = self.sequence_generator.group_list_elements_into_pairs(list_of_lists)
 
 		self.assertEqual(goal_dictionary, actual_dictionary)
 
@@ -74,7 +74,7 @@ class TestConverter(TestCase):
 		}
 		seed = list(input_dict.keys())[0]
 
-		sequence = self.converter.generate_sequence(input_dict, seed, [], 0, 10)
+		sequence = self.sequence_generator.generate_sequence(input_dict, seed, [], 0, 10)
 
 		self.assertEqual(10, len(sequence))
 
