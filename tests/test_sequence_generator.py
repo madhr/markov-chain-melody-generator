@@ -1,27 +1,11 @@
 from unittest import TestCase
-from mido import Message, MidiTrack
 
 from main.sequence_generator import SequenceGenerator
 
 
-class TestConverter(TestCase):
+class TestSequenceGenerator(TestCase):
+
 	sequence_generator = SequenceGenerator()
-
-	def test_parse_track_to_chords(self):
-		msg1 = Message(type="note_on", channel=1, note=60, time=100)
-		msg2 = Message(type="note_on", channel=1, note=61, time=0)
-		msg3 = Message(type="note_on", channel=1, note=62, time=0)
-		msg4 = Message(type="note_on", channel=1, note=63, time=50)
-		msg5 = Message(type="note_on", channel=1, note=64, time=0)
-		msg_list = [msg1, msg2, msg3, msg4, msg5]
-		track = MidiTrack()
-		for msg in msg_list:
-			track.append(msg)
-
-		goal_chords = [[60, 61, 62], [63, 64]]
-		actual_chords = self.sequence_generator.parse_track_to_chords(track)
-
-		self.assertEqual(goal_chords, actual_chords)
 
 	def test_sort_elements_in_list_of_lists(self):
 		list_of_lists = [[8, 4, 6, 1], [3, 9, 1, 7], [3, 6, 4], [1], []]
