@@ -16,7 +16,7 @@ class SequenceGenerator:
 				generated_tracks.append(generated_track)
 		midi_parser.save_tracks_to_file(generated_tracks)
 
-	def generate_track(self, input_track: MidiTrack, sequence_steps=100, channel=0, program=12, velocity=60, time=300) -> MidiTrack:
+	def generate_track(self, input_track: MidiTrack, sequence_steps=100, channel=0, program=0, velocity=60, time=300) -> MidiTrack:
 		midi_parser = MidiParser()
 		chords = midi_parser.parse_track_to_chords(input_track)
 		if not chords: return None
