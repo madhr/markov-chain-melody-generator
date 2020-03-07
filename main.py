@@ -1,6 +1,5 @@
 from mido import MidiFile
 from main.sequence_generator import SequenceGenerator
-import os.path
 import argparse
 
 if __name__ == '__main__':

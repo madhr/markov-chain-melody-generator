@@ -39,7 +39,7 @@ class TestSequenceGenerator(TestCase):
 
 		self.assertEqual(goal_dictionary, actual_dictionary)
 
-	def test_generate_sequence(self):
+	def test_generate_sequence_equals_length(self):
 		input_dict = {
 			(1, 2):
 				[(1, 2), (9,), (1, 2), (9,), (4, 5)],
